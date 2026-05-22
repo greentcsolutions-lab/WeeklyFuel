@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en" class="dark">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>WeeklyFuel — Weekly Budget Tracker</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=DM+Serif+Display:ital@0;1&family=DM+Sans:wght@300;400;500;600&display=swap" rel="stylesheet" />
+  <script src="https://cdn.tailwindcss.com"></script>
+  <script>
+    tailwind.config = {
+      darkMode: 'class',
+      theme: {
+        extend: {
+          fontFamily: {
+            display: ['"DM Serif Display"', 'serif'],
+            body: ['"DM Sans"', 'sans-serif'],
+          },
+          colors: {
+            fuel: {
+              50: '#fff7ed',
+              100: '#ffedd5',
+              400: '#fb923c',
+              500: '#f97316',
+              600: '#ea580c',
+            },
+            dark: {
+              900: '#0d0d0f',
+              800: '#131316',
+              700: '#1c1c21',
+              600: '#26262d',
+              500: '#3a3a44',
+            }
+          }
+        }
+      }
+    }
+  </script>
+  <link rel="stylesheet" href="css/style.css" />
+</head>
+<body class="font-body bg-dark-900 text-slate-100 min-h-screen transition-colors duration-300">
+
+  <!-- Noise overlay -->
+  <div class="noise-overlay"></div>
+
+  <!-- Header -->
+  <header class="sticky top-0 z-50 border-b border-white/5 backdrop-blur-md bg-dark-900/80">
+    <div class="max-w-2xl mx-auto px-4 py-4 flex items-center justify-between">
+      <div>
+        <h1 class="font-display text-2xl text-white">Weekly<span class="text-fuel-500">Fuel</span></h1>
+        <p class="text-xs text-slate-500 -mt-1">Your week. Your rules.</p>
+      </div>
+      <div class="flex items-center gap-3">
+        <button id="modeToggle" class="flex items-center gap-2 px-3 py-1.5 rounded-full text-xs font-medium border border-white/10 text-slate-400 hover:text-white hover:border-white/20 transition-all">
+          <span id="modeIcon">🔥</span>
+          <span id="modeLabel">Calories</span>
+        </button>
+        <button id="themeToggle" class="w-8 h-8 rounded-full border border-white/10 flex items-center justify-center text-slate-400 hover:text-white hover:border-white/20 transition-all text-sm">
+          🌙
+        </button>
+      </div>
+    </div>
+  </header>
+
+  <main class="max-w-2xl mx-auto px-4 py-8 space-y-6">
+
+    <!-- Weekly Budget Card -->
+    <section class="card-glow rounded-2xl p-6 bg-dark-800 border border-white/5">
+      <div class="flex items-start justify-between mb-5">
+        <div>
+          <p class="text-xs uppercase tracking-widest text-slate-500 mb-1">This Week's Budget</p>
+          <div class="flex items-baseline gap-2">
+            <span id="budgetDisplay" class="font-display text-4xl text-white">14,000</span>
+            <span id="unitLabel" class="text-slate-400 text-sm">kcal</span>
+          </div>
+        </div>
+        <button id="editBudgetBtn" class="text-xs text-fuel-400 hover:text-fuel-500 transition-colors border border-fuel-500/20 hover:border-fuel-500/40 px-3 py-1.5 rounded-full">
+          Edit
+        </button>
+      </div>
+
+      <div class="space-y-2">
+        <div class="h-3 rounded-full bg-dark-600 overflow-hidden">
+          <div id="progressBar" class="h-full rounded-full transition-all duration-700 ease-out progress-bar-fill" style="width: 0%"></div>
+        </div>
+        <div class="flex justify-between text-xs text-slate-500">
+          <span id="usedLabel">0 used</span>
+          <span id="remainingLabel">14,000 remaining</span>
+        </div>
+      </div>
+
+      <div class="grid grid-cols-3 gap-3 mt-5">
+        <div class="bg-dark-700 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-1">Daily Avg</p>
+          <p id="dailyAvg" class="font-display text-lg text-white">—</p>
+        </div>
+        <div class="bg-dark-700 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-1">Days Left</p>
+          <p id="daysLeft" class="font-display text-lg text-white">—</p>
+        </div>
+        <div class="bg-dark-700 rounded-xl p-3 text-center">
+          <p class="text-xs text-slate-500 mb-1">Budget/Day Left</p>
+          <p id="budgetPerDay" class="font-display text-lg text-white">—</p>
+        </div>
+      </div>
+    </section>
+
+    <!-- Week days grid -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display text-lg text-white">This Week</h2>
+        <div class="flex gap-2">
+          <button id="prevWeekBtn" class="text-xs text-slate-500 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/5">← prev</button>
+          <span id="weekLabel" class="text-xs text-slate-500 px-2 py-1"></span>
+          <button id="nextWeekBtn" class="text-xs text-slate-500 hover:text-white transition-colors px-2 py-1 rounded-lg hover:bg-white/5">next →</button>
+        </div>
+      </div>
+      <div id="daysGrid" class="grid grid-cols-7 gap-2"></div>
+    </section>
+
+    <!-- Log Entry -->
+    <section class="card-glow rounded-2xl p-6 bg-dark-800 border border-white/5">
+      <h2 class="font-display text-lg text-white mb-4">Log Entry</h2>
+      <div class="space-y-4">
+        <div>
+          <label class="text-xs text-slate-500 uppercase tracking-wide block mb-2">Select Day</label>
+          <div id="dayPicker" class="flex flex-wrap gap-2"></div>
+        </div>
+        <div>
+          <label class="text-xs text-slate-500 uppercase tracking-wide block mb-2">
+            <span id="amountLabel">Amount (kcal)</span>
+          </label>
+          <div class="flex gap-3">
+            <input id="amountInput" type="number" placeholder="e.g. 1800"
+              class="flex-1 bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-fuel-500/50 focus:ring-1 focus:ring-fuel-500/20 transition-all text-sm" />
+            <input id="noteInput" type="text" placeholder="Note (optional)"
+              class="flex-1 bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-fuel-500/50 focus:ring-1 focus:ring-fuel-500/20 transition-all text-sm" />
+          </div>
+        </div>
+        <button id="logBtn" class="w-full py-3.5 rounded-xl bg-fuel-500 hover:bg-fuel-600 text-white font-semibold text-sm transition-all duration-200 hover:shadow-lg hover:shadow-fuel-500/25 active:scale-95 log-btn-glow">
+          Log Entry ✓
+        </button>
+      </div>
+    </section>
+
+    <!-- Log history -->
+    <section>
+      <div class="flex items-center justify-between mb-4">
+        <h2 class="font-display text-lg text-white">Log History</h2>
+        <button id="clearWeekBtn" class="text-xs text-red-400/60 hover:text-red-400 transition-colors px-2 py-1 rounded-lg hover:bg-red-400/5">Clear week</button>
+      </div>
+      <div id="logList" class="space-y-2"></div>
+      <div id="emptyState" class="hidden text-center py-12">
+        <div class="text-4xl mb-3">📋</div>
+        <p class="text-slate-500 text-sm">No entries yet this week.</p>
+        <p class="text-slate-600 text-xs mt-1">Log your first entry above!</p>
+      </div>
+    </section>
+
+  </main>
+
+  <!-- Budget Edit Modal -->
+  <div id="budgetModal" class="hidden fixed inset-0 z-50 flex items-center justify-center p-4">
+    <div class="absolute inset-0 bg-black/60 backdrop-blur-sm" id="modalOverlay"></div>
+    <div class="relative bg-dark-800 border border-white/10 rounded-2xl p-6 w-full max-w-sm shadow-2xl">
+      <h3 class="font-display text-xl text-white mb-1">Set Weekly Budget</h3>
+      <p class="text-sm text-slate-500 mb-5" id="modalSubtitle">How many calories do you want for the full week?</p>
+      <input id="budgetInput" type="number" placeholder="e.g. 14000"
+        class="w-full bg-dark-700 border border-white/10 rounded-xl px-4 py-3 text-white placeholder-slate-600 focus:outline-none focus:border-fuel-500/50 focus:ring-1 focus:ring-fuel-500/20 transition-all text-sm mb-4" />
+      <div class="flex gap-3">
+        <button id="cancelBudgetBtn" class="flex-1 py-3 rounded-xl border border-white/10 text-slate-400 hover:text-white hover:border-white/20 text-sm transition-all">Cancel</button>
+        <button id="saveBudgetBtn" class="flex-1 py-3 rounded-xl bg-fuel-500 hover:bg-fuel-600 text-white font-semibold text-sm transition-all active:scale-95">Save Budget</button>
+      </div>
+    </div>
+  </div>
+
+  <!-- Toast -->
+  <div id="toast" class="fixed bottom-6 left-1/2 -translate-x-1/2 z-50 pointer-events-none">
+    <div id="toastInner" class="bg-dark-700 border border-white/10 text-white text-sm px-5 py-3 rounded-full shadow-xl opacity-0 translate-y-4 transition-all duration-300 flex items-center gap-2">
+      <span id="toastIcon">✓</span>
+      <span id="toastMsg">Saved!</span>
+    </div>
+  </div>
+
+  <script src="js/app.js"></script>
+</body>
+</html>
